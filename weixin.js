@@ -157,6 +157,43 @@ exports.reply = function*(message) {
             reply = news;
         }
 
+        if(content == '9') {
+            // var group = yield wechatApi.createGroup('新分组');
+            // console.log('new group')
+            // console.log(group);
+            //
+            // var groups = yield wechatApi.fetchGroups();
+            // console.log('分组列表')
+            // console.log(groups);
+            //
+            // var group2 = yield wechatApi.checkGroup(message.FromUserName);
+            // console.log('查看自己分组');
+            // console.log(group2);
+            //
+            // var group = yield wechatApi.moveGroup(message.FromUserName, 100);
+            //
+            // var group3 = yield wechatApi.checkGroup(message.FromUserName);
+            // console.log('移动后');
+            // console.log(group3);
+
+            var updateName = yield wechatApi.updateGroup('101', '新名字');
+            console.log('修改名称后')
+            console.log(updateName);
+
+            var groups2 = yield wechatApi.fetchGroups();
+            console.log('分组列表')
+            console.log(groups2);
+
+            var deleteGroup = yield wechatApi.deleteGroup(101);
+            console.log('删除分组')
+            console.log(deleteGroup);
+
+            var groups3 = yield wechatApi.fetchGroups();
+            console.log('分组列表')
+            console.log(groups3);
+
+            reply = 'Group Done'
+        }
         result = reply;
     }
 
