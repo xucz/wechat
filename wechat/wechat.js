@@ -1,7 +1,7 @@
 /**
  * Created by xuchaozheng on 16/7/20.
  */
-
+'use strict';
 /**
  * 微信权限验证
  * @type {request}
@@ -36,6 +36,12 @@ var request = require('request'),
             move: prefix + 'groups/members/update?',
             batchupdate: prefix + 'groups/members/batchupdate?',
             del: prefix + 'groups/delete?'
+        },
+        user: {
+            remark: prefix + 'user/info/updateremark?',
+            fetch: prefix + 'user/info?',
+            batchFetch: prefix + 'user/info/batchget?',
+            list: prefix + 'user/get?'
         }
     };
 
@@ -492,7 +498,6 @@ Wechat.prototype.deleteGroup = function(id) {
     return new Promise(function(resolve, reject) {
         self.fetchAccessToken().then(function(data) {
             var url = api.group.del + 'access_token=' + data.access_token;
-            console.log(url)
             var options = {
                 method: 'POST',
                 url: url,
@@ -508,6 +513,128 @@ Wechat.prototype.deleteGroup = function(id) {
                     resolve(body);
                 else {
                     throw new Error('moveGroup error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+Wechat.prototype.remarkUser = function(openId, remark) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.user.remark + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: {
+                    openid: openId,
+                    remark: remark
+                }
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('remarkUser error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ *
+ * @param openId 为数组则为批量获取用户信息
+ * @param lang
+ */
+Wechat.prototype.fetchUser = function(openId, lang) {
+    var self = this;
+    lang = lang || 'zh_CN';
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.user.batchFetch + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                json: true,
+                url: url
+            };
+
+            if(_.isArray(openId)) {
+                options.body = {
+                    "user_list": openId
+                };
+            } else {
+                options.url = api.user.fetch + 'access_token=' + data.access_token + '&openid=' + openId + '&lang='+lang;
+                options.method = 'GET';
+            }
+
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('fetchUser error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 批量获取用户信息
+ * @param openIds
+ */
+Wechat.prototype.batchFetchUsers = function(openIds) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.user.batchFetch + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: {
+                    openid: openIds
+                }
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('batchFetchUsers error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 获得关注者的列表
+ * @param openId
+ */
+Wechat.prototype.listUsers = function(openId) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.user.list + 'access_token=' + data.access_token;
+            if(openId) {
+                url += '&next_openid' + openId
+            }
+            var options = {
+                method: 'GET',
+                url: url,
+                json: true
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('listUsers error');
                 }
             });
         }).catch(function(err) {
