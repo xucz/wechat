@@ -2,12 +2,20 @@
  * Created by xuchaozheng on 16/7/26.
  */
 'use strict'
-var wechat = require('./wechat/wechat');
-var config = require('./config');
+var wechat = require('../wechat/wechat');
+var path = require('path');
+var config = require('../config');
+var menu = require('./menu');
 var wechatApi = new wechat(config.wechat);
 exports.reply = function*(message) {
     var result = '';
-    if(message.MsgType === 'event') {
+    console.log(message);
+    //当点击定位发送会推送两个事件 location event
+    // console.log(message.MsgType);
+    if(message.MsgType == 'image') {
+        result = 'Send Image Done'
+    }
+    else if(message.MsgType === 'event') {
         console.log(message.Event)
         if(message.Event === 'subscribe') {
             if(message.EventKey) {
@@ -25,6 +33,35 @@ exports.reply = function*(message) {
             result = '你点击了菜单:'+message.EventKey + message.Ticket;
         } else if(message.Event === 'VIEW') {
             result = '你点击了菜单中的链接:'+message.EventKey;
+        }
+        //微信菜单推送事件
+        else if(message.Event === 'scancode_push') {
+            console.log(message.ScanCodeInfo.ScanType)
+            console.log(message.ScanCodeInfo.ScanResult)
+            result = '你点击了:'+message.EventKey;
+        } else if(message.Event === 'scancode_waitmsg') {
+            console.log(message.ScanCodeInfo.ScanType)
+            console.log(message.ScanCodeInfo.ScanResult)
+            result = '你点击了:'+message.EventKey;
+        } else if(message.Event === 'pic_sysphoto') {
+            console.log(message.SendPicsInfo.PicList)
+            console.log(message.SendPicsInfo.Count)
+            result = '你点击了:'+message.EventKey;
+        } else if(message.Event === 'pic_photo_or_album') {
+            console.log(message.SendPicsInfo.Count)
+            console.log(message.SendPicsInfo.PicList)
+            result = '你点击了:'+message.EventKey;
+        } else if(message.Event === 'pic_weixin') {
+            console.log(message.SendPicsInfo.PicList)
+            console.log(message.SendPicsInfo.Count)
+            result = '你点击了:'+message.EventKey;
+        } else if(message.Event === 'location_select') {
+            console.log(message.EventKey)
+            result = '你点击了:'+message.EventKey;
+            console.log(result)
+
+            console.log(message.SendLocationInfo.Label)
+            console.log(message.SendLocationInfo.Poiname)
         }
     } else if(message.MsgType === 'text'){
         var content = message.Content;
@@ -53,7 +90,7 @@ exports.reply = function*(message) {
         }
 
         if(content == '6') {
-            var data = yield wechatApi.uploadMaterial('image', __dirname + '/1.png', {
+            var data = yield wechatApi.uploadMaterial('image', path.join(__dirname + '../1.png'), {
                 type: 'image',
                 description:'{"title":"nice","introduction":"introduction"}'
             });
@@ -116,7 +153,7 @@ exports.reply = function*(message) {
         }
 
         if(content == '8') {
-            var picData = yield wechatApi.uploadMaterial('image', __dirname + '/1.png', {});
+            var picData = yield wechatApi.uploadMaterial('image', path.join(__dirname + '../1.png'), {});
 
             var media = {
                 articles: [{
@@ -221,7 +258,7 @@ exports.reply = function*(message) {
 
         if(content == '12') {
 
-            // var data = yield wechatApi.uploadMaterial('image', __dirname + '/1.jpg', {
+            // var data = yield wechatApi.uploadMaterial('image', path.join(__dirname + '../1.jpg'), {
             //     type: 'image',
             //     description:'{"title":"nice","introduction":"introduction"}'
             // });
@@ -255,8 +292,18 @@ exports.reply = function*(message) {
 
             reply = 'checkMass done';
         }
+
+        if(content == 'menu') {
+            var result = yield wechatApi.createMenu(menu);
+            console.log(result);
+
+            reply = 'create menu done';
+        }
         result = reply;
+
+        console.log('rr')
     }
 
+    console.log(1)
     return result;
 };

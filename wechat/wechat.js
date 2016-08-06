@@ -49,6 +49,12 @@ var request = require('request'),
             del: prefix + 'message/mass/delete?',
             preview: prefix + 'message/mass/preview?',
             check: prefix + 'message/mass/get?'
+        },
+        menu: {
+            create: prefix + 'menu/create?',
+            get: prefix + 'menu/get?',
+            del: prefix + 'menu/delete?',
+            current: prefix + 'get_current_selfmenu_info?'
         }
     };
 
@@ -819,6 +825,105 @@ Wechat.prototype.checkMass = function(msgId) {
                     resolve(body);
                 else {
                     throw new Error('checkMass error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+Wechat.prototype.createMenu = function(menu) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.menu.create + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: menu
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('createMenu error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+Wechat.prototype.getMenu = function() {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.menu.get + 'access_token=' + data.access_token;
+            var options = {
+                method: 'GET',
+                url: url,
+                json: true
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('getMenu error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 删除当前菜单 粗暴!
+ */
+Wechat.prototype.deleteMenu = function() {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.menu.del + 'access_token=' + data.access_token;
+            var options = {
+                method: 'GET',
+                url: url,
+                json: true
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('deleteMenu error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 获得当前菜单配置信息
+ */
+Wechat.prototype.getCurrentMenu = function() {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.menu.current + 'access_token=' + data.access_token;
+            var options = {
+                method: 'GET',
+                url: url,
+                json: true
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('currentMenu error');
                 }
             });
         }).catch(function(err) {
