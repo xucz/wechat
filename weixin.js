@@ -8,6 +8,7 @@ var wechatApi = new wechat(config.wechat);
 exports.reply = function*(message) {
     var result = '';
     if(message.MsgType === 'event') {
+        console.log(message.Event)
         if(message.Event === 'subscribe') {
             if(message.EventKey) {
                 console.log('扫描二维码进来');
@@ -67,7 +68,7 @@ exports.reply = function*(message) {
 
         if(content == '7') {
             var counts = yield wechatApi.countMaterial();
-            console.log(counts)
+            // console.log(counts)
             var list = yield [
                 wechatApi.batchMaterial({
                     type: 'image',
@@ -216,6 +217,43 @@ exports.reply = function*(message) {
             console.log(userlist)
 
             reply = userlist.total;
+        }
+
+        if(content == '12') {
+
+            // var data = yield wechatApi.uploadMaterial('image', __dirname + '/1.jpg', {
+            //     type: 'image',
+            //     description:'{"title":"nice","introduction":"introduction"}'
+            // });
+            // 1lcqbhwL9fgKIHTE6-CC8gp8lPDGjknIlyWUAWHp2bo
+            var text = {
+                content: '这是一个群发'
+            };
+            var sendResult = yield wechatApi.sendByGroup('text', text, 100);
+            console.log(sendResult)
+
+            reply = '1';
+        }
+
+        if(content == '13') {
+            var text = {
+                content: '这是一个preview群发'
+            };
+            var image = {
+                media_id: '1lcqbhwL9fgKIHTE6-CC8gp8lPDGjknIlyWUAWHp2bo'
+            }
+            // var sendResult = yield  wechatApi.previewMass('text', text, message.FromUserName);
+            var sendResult = yield  wechatApi.previewMass('image', image, message.FromUserName);
+            console.log(sendResult)
+
+            reply = 'preview done';
+        }
+
+        if(content == '14') {
+            var sendResult = yield  wechatApi.checkMass(1000000001);
+            console.log(sendResult)
+
+            reply = 'checkMass done';
         }
         result = reply;
     }
