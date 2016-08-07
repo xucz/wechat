@@ -12,7 +12,10 @@ var request = require('request'),
     _ = require('lodash'),
     fs = require('fs'),
     prefix = 'https://api.weixin.qq.com/cgi-bin/',
+    mpPrefix = 'https://mp.weixin.qq.com/cgi-bin/',
+    semanticUrl = 'https://api.weixin.qq.com/semantic/semproxy/search?',
     api = {
+        semanticUrl: semanticUrl,
         accessToken: prefix + 'token?grant_type=client_credential',
         temporary: {
             upload: prefix + 'media/upload?',
@@ -55,6 +58,11 @@ var request = require('request'),
             get: prefix + 'menu/get?',
             del: prefix + 'menu/delete?',
             current: prefix + 'get_current_selfmenu_info?'
+        },
+        qrcode: {
+            create: prefix + 'qrcode/create?',
+            show: mpPrefix + 'showqrcode?',
+            shortUrl: prefix + 'shorturl?'
         }
     };
 
@@ -924,6 +932,93 @@ Wechat.prototype.getCurrentMenu = function() {
                     resolve(body);
                 else {
                     throw new Error('currentMenu error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 只有服务号才能使用
+ * @param qr
+ */
+Wechat.prototype.createQrcode = function(qr) {
+    var self = this;
+
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.qrcode.create + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: qr
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('createQrcode error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+Wechat.prototype.showQrcode = function(ticket) {
+    return api.qrcode.show + 'ticket=' + encodeURI(ticket);
+};
+Wechat.prototype.createShortQrcode = function(url, action) {
+    var self = this;
+    action = action || 'long2short'
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.qrcode.shortUrl + 'access_token=' + data.access_token;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: {
+                    action: action,
+                    long_url: url
+                }
+            };
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('createShortQrcode error');
+                }
+            });
+        }).catch(function(err) {
+            reject(err);
+        })
+    })
+};
+/**
+ * 暂时不知道怎么使用
+ * @param semanticData
+ */
+Wechat.prototype.semantic = function(semanticData) {
+    var self = this;
+    return new Promise(function(resolve, reject) {
+        self.fetchAccessToken().then(function(data) {
+            var url = api.semanticUrl + 'access_token=' + data.access_token;
+            semanticData.appid = self.appId;
+            var options = {
+                method: 'POST',
+                url: url,
+                json: true,
+                body: semanticData
+            };
+            console.log(options)
+            request(options, function(err, response, body) {
+                if(body)
+                    resolve(body);
+                else {
+                    throw new Error('semantic error');
                 }
             });
         }).catch(function(err) {

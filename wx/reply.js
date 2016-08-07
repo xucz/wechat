@@ -9,7 +9,7 @@ var menu = require('./menu');
 var wechatApi = new wechat(config.wechat);
 exports.reply = function*(message) {
     var result = '';
-    console.log(message);
+    // console.log(message);
     //当点击定位发送会推送两个事件 location event
     // console.log(message.MsgType);
     if(message.MsgType == 'image') {
@@ -299,11 +299,79 @@ exports.reply = function*(message) {
 
             reply = 'create menu done';
         }
+
+        if(content == '15') {
+            console.log('15');
+            var tmpQr = {
+                expire_secondes: 40000,
+                action_name: 'QR_SCENE',
+                action_info: {
+                    scene: {
+                        scene_id: 123
+                    }
+                }
+            };
+            var permQr = {
+                action_name: 'QR_LIMIT_SCENE',
+                action_info: {
+                    scene: {
+                        scene_id: 123
+                    }
+                }
+            };
+            var permStrQr = {
+                action_name: 'QR_LIMIT_STR_SCENE',
+                action_info: {
+                    scene: {
+                        scene_str: 'abc'
+                    }
+                }
+            };
+            var qr1 = yield wechatApi.createQrcode(tmpQr);
+            var qr2 = yield wechatApi.createQrcode(permQr);
+            var qr3 = yield wechatApi.createQrcode(permStrQr);
+            console.log('生成二维码后');
+            console.log(qr1);
+            // console.log(qr2);
+            // console.log(qr3);
+            reply = wechatApi.showQrcode(qr1.ticket);
+        }
+        if(content == '16') {
+            // var permStrQr = {
+            //     action_name: 'QR_LIMIT_STR_SCENE',
+            //     action_info: {
+            //         scene: {
+            //             scene_str: 'http://www.baidu.com'
+            //         }
+            //     }
+            // };
+            // var qr3 = yield wechatApi.createQrcode(permStrQr);
+            //
+            //
+            //
+            // console.log(qr3)
+            // var longUrl = wechatApi.showQrcode(qr3.ticket);
+            var longUrl = 'http://www.baidu.com/';
+            var shortData = yield wechatApi.createShortQrcode(longUrl);
+            console.log(shortData);
+            // reply = shortData.short_url;
+            reply = longUrl;
+        }
+
+        if(content == '17') {
+            var sematicData = {
+                "query":"查一下明天从北京到上海的南航机票",
+                "city":"北京",
+                "category": "flight,hotel",
+                uid: message.FromUserName
+            }
+            var _sematicData = yield wechatApi.semantic(sematicData);
+            console.log(_sematicData)
+            reply = JSON.stringify(_sematicData);
+        }
         result = reply;
 
-        console.log('rr')
     }
 
-    console.log(1)
     return result;
 };
