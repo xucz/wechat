@@ -5,9 +5,49 @@
 
 var koa = require('koa'),
     g = require('./wechat/g'),
-    config = require('./config');
+    config = require('./config'),
+    sha1 = require('sha1');
 
 var app = new koa();
+
+app.use(function *(next) {
+    if(this.url.indexOf('/movie') > -1) {
+        this.body = '<h1>xu</h1>';
+        return;
+    }
+    yield next;
+});
+var createNonce = function() {
+    return Math.random().toString(36).substr(2, 15);
+};
+var createTimestamp = function() {
+  return parseInt(new Date().getTime() / 1000, 10) + '';
+};
+function _sign (noncestr, tikcet, timestamp, url) {
+    var params = [
+        'noncestr=' + noncestr,
+        'jsapi_ticket=' + tikcet,
+        'timestamp=' + timestamp,
+        'url=' + url
+    ]
+
+    var str = params.sort().join('&');
+    var shasum = sha1(str);
+
+    return shasum;
+}
+function sign(tticket, url) {
+    var noncestr = createNonce();
+    var timestamp = createTimestamp();
+    var signature = _sign(noncestr, tikcet, timestamp, url);
+
+    return {
+        noncestr: noncestr,
+        timestamp: timestamp,
+        signature: signature
+    }
+
+}
 app.use(g(config.wechat));
 
 app.listen(3000);

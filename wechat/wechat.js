@@ -63,6 +63,9 @@ var request = require('request'),
             create: prefix + 'qrcode/create?',
             show: mpPrefix + 'showqrcode?',
             shortUrl: prefix + 'shorturl?'
+        },
+        ticket: {
+            get: prefix + 'ticket/getticket?'
         }
     };
 
@@ -1025,5 +1028,63 @@ Wechat.prototype.semantic = function(semanticData) {
             reject(err);
         })
     })
+};
+
+
+/**
+ *
+ * @param accessToken
+ * @returns {*}
+ */
+Wechat.prototype.fetchTicket = function(accessToken) {
+    var self = this;
+    return utils.readFile(fpath, 'utf-8').then(function(data) {
+        try {
+            data = JSON.parse(data);
+        } catch(e) {
+            return self.updateTicket(accessToken);
+        }
+
+        if(self.isValidTicket(data)) {
+            return Promise.resolve(data)
+        } else {
+            return self.updateTicket();
+        }
+    });
+};
+Wechat.prototype.updateTicket = function(accessToken) {
+    var url = api.ticket.get + '&access_token=' + accessToken + '&type=jsapi';
+    return new Promise(function(resolve, reject) {
+        request.get({
+            url: url,
+            json: true
+        }, function(error, respone, body) {
+            if(!error && respone.statusCode != 200) {
+                reject(error);
+            }
+            var data = body;
+            var now = new Date().getTime();
+            var expries_in = (data.expires_in - 20) * 1000;
+            data.expires_in = now + expries_in;
+            utils.writeFile(fpath, JSON.stringify(data)).then(function(){
+                resolve(data);
+            })
+        });
+    });
+};
+Wechat.prototype.isValidTicket = function(data) {
+    if(!data || !data.ticket || !data.expires_in) {
+        return false;
+    }
+
+    // var access_token = data.access_token;
+    var expires_in = data.expires_in;
+    var now = (new Date()).getTime();
+
+    if(now < expires_in) {
+        return true;
+    } else {
+        return false;
+    }
 };
 module.exports = Wechat;
