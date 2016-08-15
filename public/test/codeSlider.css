@@ -1,0 +1,39 @@
+.slider-container {
+    width: 100%;
+    /*height: 100%;*/
+    height: 170px;
+}
+.slider-container > .img-num {
+    text-align: center;
+    line-height: 12px;
+    font-size: 12px;
+    margin-top: 6px;
+}
+.slider-container > .img-num > span {
+    color : red
+}
+.slider {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    list-style-type: none;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+}
+.slider > li {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+.slider > li > img {
+    width: 100%;
+    height: 100%;
+}
+.slider > li > .title {
+    text-align: center;
+    font-size: 13px;
+    line-height: 15px;
+    margin-top: 10px;
+    margin-bottom: 8px;
+}

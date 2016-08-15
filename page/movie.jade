@@ -1,0 +1,60 @@
+//
+   Created by xuchaozheng on 16/8/9.
+doctype html
+html
+    head
+        meta(name='viewport' content='initial-scale=1, maxinum-scale=1, minimum-scale=1, user-scalable=no')
+        style.
+            .tt {
+                background: red;
+                width: 100%;
+                height: 300px;
+            }
+            .desc {
+
+            }
+            #qrs {
+                width: 200px;
+            }
+        link(href='/test/codeSlider.css' rel='stylesheet' type='text/css')
+    body
+        div#qrs
+        //div#tt.tt
+        //div#desc
+    script(src='/js/lib/zepto.js')
+    script(src='/test/codeSlider.js')
+    script(src='/test/qrcode.min.js')
+    script.
+        new codeSlider({
+            list:[
+                {
+                    render: 'canvas',
+                    test: '123',
+                    width:135,
+                    height: 135,
+                    title: '123'
+                },
+                {
+                    render: 'canvas',
+                    test: '123',
+                    width:135,
+                    height: 135,
+                    title: '123'
+                }
+            ],
+            id:'qrs',
+            width: '266'
+        })
+    //script.
+    //    var tt = document.getElementById('tt');
+    //    var desc = document.getElementById('desc');
+    //
+    //    tt.addEventListener('touchstart', function(e) {
+    //        desc.innerHTML =  desc.innerHTML + '<br/>touch start';
+    //    });
+    //    tt.addEventListener('touchmove', function(e) {
+    //        desc.innerHTML =  desc.innerHTML + '<br/>touch move';
+    //    });
+    //    tt.addEventListener('touchend', function(e) {
+    //        desc.innerHTML =  desc.innerHTML + '<br/>touch end';
+    //    });

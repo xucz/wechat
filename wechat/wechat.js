@@ -8,7 +8,9 @@
  */
 var request = require('request'),
     utils = require('../common/utils'),
-    fpath = __dirname+ '/token.json',
+    path = require('path'),
+    tocken_file = path.join(__dirname, 'token.json'),
+    ticket_file = path.join(__dirname, 'ticket.json'),
     _ = require('lodash'),
     fs = require('fs'),
     prefix = 'https://api.weixin.qq.com/cgi-bin/',
@@ -73,19 +75,20 @@ var Wechat = function(opts) {
     var self = this;
     this.appId = opts.appId;
     this.appSecret = opts.appSecret;
-    utils.readFile(fpath, 'utf-8').then(function(data) {
-        try {
-            data = JSON.parse(data);
-        } catch(e) {
-            return self.updateAccsssToken();
-        }
 
-        if(self.isValidAccessToken(data)) {
-            return Promise.resolve(data)
-        } else {
-            return self.updateAccsssToken();
-        }
-    });
+    // utils.readFile(tocken_file, 'utf-8').then(function(data) {
+    //     try {
+    //         data = JSON.parse(data);
+    //     } catch(e) {
+    //         return self.updateAccsssToken();
+    //     }
+    //
+    //     if(self.isValidAccessToken(data)) {
+    //         return Promise.resolve(data)
+    //     } else {
+    //         return self.updateAccsssToken();
+    //     }
+    // });
 
 };
 Wechat.prototype.updateAccsssToken = function() {
@@ -102,7 +105,7 @@ Wechat.prototype.updateAccsssToken = function() {
             var now = new Date().getTime();
             var expries_in = (data.expires_in - 20) * 1000;
             data.expires_in = now + expries_in;
-            utils.writeFile(fpath, JSON.stringify(data)).then(function(){
+            utils.writeFile(tocken_file, JSON.stringify(data)).then(function(){
                 resolve(data);
             })
         });
@@ -125,7 +128,7 @@ Wechat.prototype.isValidAccessToken = function(data) {
 };
 Wechat.prototype.fetchAccessToken = function() {
     var self = this;
-    return utils.readFile(fpath, 'utf-8').then(function(data) {
+    return utils.readFile(tocken_file, 'utf-8').then(function(data) {
         try {
             data = JSON.parse(data);
         } catch(e) {
@@ -1038,17 +1041,16 @@ Wechat.prototype.semantic = function(semanticData) {
  */
 Wechat.prototype.fetchTicket = function(accessToken) {
     var self = this;
-    return utils.readFile(fpath, 'utf-8').then(function(data) {
+    return utils.readFile(ticket_file, 'utf-8').then(function(data) {
         try {
             data = JSON.parse(data);
         } catch(e) {
             return self.updateTicket(accessToken);
         }
-
         if(self.isValidTicket(data)) {
             return Promise.resolve(data)
         } else {
-            return self.updateTicket();
+            return self.updateTicket(accessToken);
         }
     });
 };
@@ -1066,7 +1068,7 @@ Wechat.prototype.updateTicket = function(accessToken) {
             var now = new Date().getTime();
             var expries_in = (data.expires_in - 20) * 1000;
             data.expires_in = now + expries_in;
-            utils.writeFile(fpath, JSON.stringify(data)).then(function(){
+            utils.writeFile(ticket_file, JSON.stringify(data)).then(function(){
                 resolve(data);
             })
         });
